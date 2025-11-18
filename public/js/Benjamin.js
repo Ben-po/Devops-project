@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!res.ok) return alert(data.message || 'Register failed');
         saveToken(data.token);
         alert('Registered and logged in as ' + data.user.username);
-        window.location.href = '/';
+        window.location.href = '/FirstSkillSelection.html';
       } catch (e) { alert('Network error'); }
     });
   }
@@ -91,4 +91,79 @@ document.addEventListener('DOMContentLoaded', async () => {
     const me = await fetchMe();
     if (me) showLoggedIn(me); else showLoggedOut();
   }
+
+  // Logic for the skill selection page
+  if (window.location.pathname === '/FirstSkillSelection.html') {
+    populateSkills();
+    setupSkillSelection();
+  }
 });
+
+function populateSkills() {
+  const skills = [
+    "Python", "JavaScript", "Java", "C++", "C#", "Ruby", "Go", "Swift", "Kotlin",
+    "HTML", "CSS", "React", "Angular", "Vue.js", "Node.js", "Django", "Flask",
+    "SQL", "MongoDB", "Firebase", "AWS", "Azure", "Google Cloud", "Docker",
+    "SQL", "Transformer", "Git", "Jira", "Agile", "Scrum", "CI/CD",
+    "Machine Learning", "Data Science", "Deep Learning", "NLP", "Computer Vision",
+    "Graphic Design", "UI/UX Design", "Figma", "Sketch", "Adobe XD", "Photoshop",
+    "Illustrator", "Video Editing", "Blender", "3D Modeling", "Game Development",
+    "Unity", "Unreal Engine", "Mobile App Development", "Rock climbing", "Bouldering",
+    "Project Management", "Product Management", "Marketing", "SEO", "Content Writing",
+    "Public Speaking", "Negotiation", "Swimming", "Cooking", "Baking", "Guitar",
+    "Piano", "Singing", "Dancing", "Photography", "Yoga", "Meditation", "Fitness"
+  ];
+
+  const container = $('#skill-card-container');
+  if (container) {
+    skills.forEach(skill => {
+      const card = document.createElement('div');
+      card.classList.add('skill-card');
+      card.textContent = skill;
+      card.dataset.skill = skill;
+      container.appendChild(card);
+    });
+  }
+}
+
+function setupSkillSelection() {
+  const container = $('#skill-card-container');
+  const submitBtn = $('#submitSkillsBtn');
+  let selectedSkills = [];
+
+  if (container) {
+    container.addEventListener('click', (event) => {
+      const card = event.target.closest('.skill-card');
+      if (card) {
+        const skill = card.dataset.skill;
+        if (selectedSkills.includes(skill)) {
+          // Deselect
+          selectedSkills = selectedSkills.filter(s => s !== skill);
+          card.classList.remove('selected');
+        } else {
+          // Select
+          if (selectedSkills.length < 3) {
+            selectedSkills.push(skill);
+            card.classList.add('selected');
+          } else {
+            alert('You can only select up to 3 skills.');
+          }
+        }
+        submitBtn.disabled = selectedSkills.length === 0;
+      }
+    });
+  }
+
+  if (submitBtn) {
+    submitBtn.addEventListener('click', () => {
+      if (selectedSkills.length > 0) {
+        alert(`You have selected: ${selectedSkills.join(', ')}`);
+        // Here you would typically send the selected skills to the server
+        // For now, we'll just redirect to the homepage
+        window.location.href = '/';
+      } else {
+        alert('Please select at least one skill.');
+      }
+    });
+  }
+}
