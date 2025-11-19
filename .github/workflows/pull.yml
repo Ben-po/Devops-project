@@ -1,6 +1,6 @@
 name: Pull Request Workflow (Static Website)
 
-# 🔔 Trigger this workflow when someone opens a pull request into main
+#Trigger this workflow when someone opens a pull request into main
 on:
   pull_request:
     branches: ["main"]
