@@ -1,4 +1,4 @@
-name: Pull Request Workflow (Static Website)
+name: Pull Request Workflow
 
 #Trigger this workflow when someone opens a pull request into main
 on:
