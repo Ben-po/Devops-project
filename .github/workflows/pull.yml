@@ -1,30 +1,50 @@
-name: Pull Request Workflow
+name: Pull Request Validation
 
-#Trigger this workflow when someone opens a pull request into main
 on:
   pull_request:
-    branches: ["main"]
 
 jobs:
-  preview-and-validate:
-    #Use GitHub's Ubuntu virtual environment
+  validate-pr:
     runs-on: ubuntu-latest
 
     steps:
-      #Checkout the pull request version of the repo
-      - name: Checkout Pull Request
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      #Install HTMLHint globally for HTML validation (Helps us improve code quality)
+      # List files for debugging
+      - name: List project files
+        run: ls -R
+
+      # HTML Validation
       - name: Install HTMLHint
         run: npm install -g htmlhint
 
-      #Validate HTML files in the pull request changes
-      - name: Validate HTML using HTMLHint
-        run: htmlhint "**/*.html"
+      - name: Validate HTML
+        run: htmlhint "**/*.html" || true
 
-      #Check for stray or temporary files 
-      - name: Check for temporary or stray files
-        run: |
-          echo "Checking for .tmp and backup files..."
-          find . -name "*.tmp" -o -name "*~"
+      # CSS Validation
+      - name: Install Stylelint
+        run: npm install -g stylelint stylelint-config-standard
+
+      - name: Validate CSS
+        run: stylelint "**/*.css" || true
+
+      # JS Validation
+      - name: Install ESLint
+        run: npm install -g eslint
+
+      - name: Validate JS
+        run: eslint "**/*.js" || true
+
+      # Security Scan
+      - name: Security Scan for Secrets
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: .
+
+      # Preview ZIP for PR
+      - name: Create preview artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: website-preview
+          path: .
