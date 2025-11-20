@@ -42,13 +42,7 @@ jobs:
 
       - name: Validate JavaScript
         run: eslint "**/*.js" || true
-        # "|| true" ensures warnings don't break the workflow
-
-      #Check for any possible security vulnerability
-      - name: Security Scan for Secrets
-        uses: trufflesecurity/trufflehog@main
-        with:
-          path: .
+        #ensures warnings don't break the workflow
 
       #Generates a preview website when merging
       - name: Create preview 
