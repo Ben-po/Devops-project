@@ -1,66 +1,71 @@
 name: Push Workflow
 
-# Trigger this workflow whenever someone pushes to the main branch
 on:
   push:
     branches: ["main"]
 
+permissions:
+  contents: write
+
 jobs:
+
+#Validate incoming HTML
   validate-static-site:
     runs-on: ubuntu-latest
 
     steps:
-      # Download the repository code into the runner
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Display project structure
       - name: List project files
         run: ls -R
 
-      # Install HTMLHint globally
       - name: Install HTMLHint
         run: npm install -g htmlhint
 
-      # Validate HTML using HTMLHint
-      - name: Validate HTML using HTMLHint
+      - name: Validate HTML
         run: htmlhint "**/*.html"
 
-      # Check for large files (>5MB)
-      - name: Check for large files
+      - name: Check large files
         run: |
           echo "Scanning for files larger than 5MB..."
           find . -type f -size +5M || true
 
 
-  #Sync all branches
+#sync the main branch
   sync-branches:
-    needs: validate-static-site   # Only run after validation succeeds
+    needs: validate-static-site
     runs-on: ubuntu-latest
-    permissions:
-      contents: write   # Allow workflow to push to branches
 
     steps:
-      - name: Checkout full history
+      - name: Checkout full repo
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Needed so git can switch branches
+          fetch-depth: 0
 
       - name: Fetch all branches
         run: git fetch --all
 
-      - name: Get list of branches except main
-        id: list
-        run: |
-          git branch -r | grep -v "main" | sed 's/origin\///' > branches.txt
-          echo "Branches to sync:"
-          cat branches.txt
 
-      - name: Merge main into all branches #logic to update all the branches
+#branch list
+      - name: Define branches to sync
+        id: vars
         run: |
-          while read branch; do
-            echo "Updating $branch..."
-            git checkout $branch || continue
+          echo "branches=Login/Register-user manage-posts post-skill/offer" >> $GITHUB_ENV
+
+
+# merge each branch manually
+      - name: Merge main into each branch
+        run: |
+          for branch in $branches; do
+            echo "🔄 Updating $branch"
+
+            # Check out the branch safely
+            git checkout -B "$branch" "origin/$branch" || continue
+
+            # Merge main
             git merge origin/main --no-edit || true
-            git push origin $branch || true
-          done < branches.txt
+
+            # Push updates
+            git push origin "$branch" || true
+          done
