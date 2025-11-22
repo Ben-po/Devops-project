@@ -1,0 +1,50 @@
+name: Pull Request Validation
+
+on:
+  pull_request:
+
+jobs:
+  validate-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # List files for debugging
+      - name: List project files
+        run: ls -R
+
+      # HTML Validation
+      - name: Install HTMLHint
+        run: npm install -g htmlhint
+
+      - name: Validate HTML
+        run: htmlhint "**/*.html" || true
+
+      # CSS Validation
+      - name: Install Stylelint
+        run: npm install -g stylelint stylelint-config-standard
+
+      - name: Validate CSS
+        run: stylelint "**/*.css" || true
+
+      # JS Validation
+      - name: Install ESLint
+        run: npm install -g eslint
+
+      - name: Validate JS
+        run: eslint "**/*.js" || true
+
+      # Security Scan
+      - name: Security Scan for Secrets
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: .
+
+      # Preview ZIP for PR
+      - name: Create preview artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: website-preview
+          path: .
