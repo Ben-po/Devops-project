@@ -1,3 +1,8 @@
+const express = require('express');
+const path = require('path');
+const fs = require('fs');
+const bcrypt = require('bcryptjs');
+const SkillPostUtil = require('./utils/SkillPostUtil');
 const express = require("express");
 const path = require("path");
 const fs = require("fs");
@@ -199,6 +204,18 @@ app.post("/api/requests", (req, res) => {
     res.status(201).json({ message: "Request added" });
 });
 
+// View all posts
+app.get('/api/posts', SkillPostUtil.viewPosts);
+
+// Update a post
+app.put('/api/posts/:id', SkillPostUtil.updatePost);
+
+// Delete a post
+app.delete('/api/posts/:id', SkillPostUtil.deletePost);
+
+
+app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
 app.listen(PORT, () => {
     console.log(`Merged SkillLink server running at http://localhost:${PORT}`);
 });

@@ -48,6 +48,7 @@ document.addEventListener('DOMContentLoaded', async () => { // Setup event liste
         const data = await res.json();
         if (!res.ok) return alert(data.message || 'Login failed');
         saveToken(data.token);
+        localStorage.setItem('loggedInUser', data.user.username);
         alert('Logged in as ' + data.user.username);
         window.location.href = '/';
       } catch (e) { alert('Network error'); }
@@ -70,6 +71,7 @@ document.addEventListener('DOMContentLoaded', async () => { // Setup event liste
         const data = await res.json();
         if (!res.ok) return alert(data.message || 'Register failed');
         saveToken(data.token);
+        localStorage.setItem('loggedInUser', data.user.username);
         alert('Registered and logged in as ' + data.user.username);
         window.location.href = '/FirstSkillSelection.html';
       } catch (e) { alert('Network error'); }
@@ -80,6 +82,7 @@ document.addEventListener('DOMContentLoaded', async () => { // Setup event liste
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
       clearToken();
+      localStorage.removeItem('loggedInUser');
       showLoggedOut();
       alert('Logged out');
     });

@@ -39,6 +39,7 @@
         <div class="column">
           <h3>Skill Requests</h3>
           <ul id="requestsList">
+
             <!-- JS will fill this from requests.json -->
           </ul>
           <button class="add-btn" id="addRequestBtn">+ Add Request</button>
@@ -78,6 +79,28 @@
       </div>
     </div>
   </div>
+
+<div id="editModal" class="modal-overlay">
+  <div class="modal-content">
+    <h3>Edit Skill Post</h3>
+
+    <label for="editSkillInput">Skill</label>
+    <input type="text" id="editSkillInput" />
+
+    <label for="editCategoryInput">Category</label>
+    <input type="text" id="editCategoryInput" />
+
+    <label for="editDescriptionInput">Description</label>
+    <textarea id="editDescriptionInput" rows="3"></textarea>
+
+    <div class="modal-actions">
+      <button id="editCancelBtn" class="action-btn delete-btn">Cancel</button>
+      <button id="editSaveBtn" class="action-btn edit-btn">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/managePosts.js"></script>
   <div id="offerModal" class="modal">
     <div class="modal-content">
       <span class="close" id="closeOffer">&times;</span>
