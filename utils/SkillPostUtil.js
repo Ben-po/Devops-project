@@ -4,7 +4,7 @@ const path = require("path");
 const offersFile = path.join(__dirname, "..", "data", "offers.json");
 const requestsFile = path.join(__dirname, "..", "data", "requests.json");
 
-function log(level, msg, meta = {}) {
+function log(level, msg, meta) {
   const time = new Date().toISOString();
   const safeMeta = meta ? JSON.stringify(meta) : "";
   console[level](`[SkillLink][UpdatePost][${time}] ${msg} ${safeMeta}`);
@@ -218,4 +218,4 @@ function deletePost(req, res) {
   }
 }
 
-module.exports = { viewPosts, updatePost, deletePost };
+module.exports = { viewPosts, updatePost, deletePost, __log: log };

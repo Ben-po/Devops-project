@@ -29,7 +29,7 @@ describe("DELETE /api/posts/:id (Delete Post)", () => {
 
   beforeAll(() => {
     const backup = (file) => {
-      const b = file + ".bak_test";
+      const b = file + ".bak_delete_test";
       if (fs.existsSync(file)) fs.copyFileSync(file, b);
     };
     [offersFile, requestsFile, usersFile].forEach(backup);
@@ -37,7 +37,7 @@ describe("DELETE /api/posts/:id (Delete Post)", () => {
 
   afterAll(() => {
     const restore = (file) => {
-      const b = file + ".bak_test";
+      const b = file + ".bak_delete_test";
       if (fs.existsSync(b)) fs.copyFileSync(b, file);
       if (fs.existsSync(b)) fs.unlinkSync(b);
     };

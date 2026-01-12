@@ -241,6 +241,4 @@ document.addEventListener("DOMContentLoaded", function () {
       alert("Error creating request.");
     }
   });
-
-  // Edit/Delete handled by `Pavian.js` (this file only renders posts)
 });

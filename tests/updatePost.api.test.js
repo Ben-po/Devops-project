@@ -33,7 +33,7 @@ describe("PUT /api/posts/:id (Update Post)", () => {
   beforeAll(() => {
     // backup existing files
     const backup = (file) => {
-      const b = file + ".bak_test";
+      const b = file + ".bak_update_test";
       if (fs.existsSync(file)) fs.copyFileSync(file, b);
     };
     [offersFile, requestsFile, usersFile].forEach(backup);
@@ -42,7 +42,7 @@ describe("PUT /api/posts/:id (Update Post)", () => {
   afterAll(() => {
     // restore backups
     const restore = (file) => {
-      const b = file + ".bak_test";
+      const b = file + ".bak_update_test";
       if (fs.existsSync(b)) fs.copyFileSync(b, file);
       if (fs.existsSync(b)) fs.unlinkSync(b);
     };
