@@ -167,7 +167,7 @@ function updatePost(req, res) {
     }
     return res.json({ success: true, message: "Post updated successfully." });
   } catch (err) {
-    console.error("Error in updatePost:", err);
+    log("error", "SERVER_ERROR", { id: req.params?.id, error: err.message });
     res.status(500).json({ success: false, message: "Server error while updating post." });
   }
 }
