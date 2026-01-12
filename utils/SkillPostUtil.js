@@ -161,7 +161,10 @@ function updatePost(req, res) {
       }
     }
 
-    if (!found) return res.status(404).json({ success: false, message: "Post not found." });
+    if (!found) {
+      log("warn", "NOT_FOUND", { id });
+      return res.status(404).json({ success: false, message: "Post not found." });
+    }
     return res.json({ success: true, message: "Post updated successfully." });
   } catch (err) {
     console.error("Error in updatePost:", err);
