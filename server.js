@@ -8,7 +8,12 @@ const app = express();
 const PORT = 3000;
 
 app.use(express.json());  // Fixed: moved to top
-app.use(express.static(path.join(__dirname, "public"))); // serve frontend
+
+const staticDir = process.env.STATIC_DIR
+  ? path.join(__dirname, process.env.STATIC_DIR)
+  : path.join(__dirname, "public"); // change "public" if your frontend folder differs
+
+app.use(express.static(staticDir)); // serve frontend
 
 const USERS_FILE = path.join(__dirname, "utils", "skilllink.json");
 

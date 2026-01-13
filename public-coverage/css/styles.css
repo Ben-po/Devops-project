@@ -1,0 +1,436 @@
+/* ====== Global Style ====== */
+body {
+  font-family: 'Segoe UI', Arial, sans-serif;
+  background-color: #f8f9fb;
+  margin: 0;
+  padding: 0;
+  color: #333;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ====== Header ====== */
+header {
+  background-color: #0078d4;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 30px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+  font-size: 1.6rem;
+  letter-spacing: 1px;
+}
+
+nav button {
+  background-color: white;
+  border: none;
+  color: #0078d4;
+  font-weight: 600;
+  padding: 8px 14px;
+  margin-left: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+nav button:hover {
+  background-color: #e2e6ea;
+}
+
+/* ====== Main Sections ====== */
+main {
+  flex: 1;
+  width: 90%;
+  max-width: 900px;
+  margin: 30px auto;
+}
+
+.search-section {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.search-section input {
+  padding: 10px;
+  width: 70%;
+  max-width: 400px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  margin-right: 8px;
+}
+
+.search-section button {
+  background-color: #0078d4;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+search-section button:hover {
+  background-color: #005fa3;
+}
+
+/* ====== Skills Section ====== */
+.skills-container {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.column {
+  flex: 1;
+  min-width: 300px;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.column h3 {
+  color: #0078d4;
+  margin-bottom: 15px;
+}
+
+.column ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.column ul li {
+  background: #f2f6fc;
+  margin-bottom: 10px;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+}
+
+.add-btn {
+  margin-top: 10px;
+  width: 100%;
+  background-color: #0078d4;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.add-btn:hover {
+  background-color: #005fa3;
+}
+
+/* ====== Footer ====== */
+footer {
+  text-align: center;
+  background-color: #f1f3f6;
+  padding: 12px;
+  font-size: 0.9rem;
+  color: #555;
+  border-top: 1px solid #e2e2e2;
+}
+
+/* Common style for action buttons (Edit/Delete) */
+.action-btn {
+  border: none;
+  padding: 4px 10px;
+  margin-top: 6px;
+  margin-right: 6px;
+  border-radius: 999px;
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+/* Edit = blue */
+.edit-btn {
+  background-color: #0078d4;
+}
+
+/* Delete = red */
+.delete-btn {
+  background-color: #d9534f;
+}
+
+/* Small hover effect */
+.action-btn:hover {
+  opacity: 0.85;
+}
+
+/* ===== Edit Modal ===== */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #ffffff;
+  padding: 20px 24px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.modal-content h3 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  color: #0078d4;
+}
+
+.modal-content label {
+  display: block;
+  margin-top: 8px;
+  margin-bottom: 4px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.modal-content input,
+.modal-content textarea {
+  width: 100%;
+  padding: 8px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+}
+
+.modal-actions {
+  margin-top: 14px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+/* Space out modal form controls */
+.modal-content form label {
+  display: block;
+  margin-top: 12px;
+  margin-bottom: 6px;
+}
+
+.modal-content form input,
+.modal-content form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 12px;
+  padding: 10px;
+}
+
+/* Make description boxes taller + nicer */
+.modal-content form textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+/* Add space above submit button */
+.modal-content form .submit-btn,
+.modal-content form button[type="submit"] {
+  margin-top: 10px;
+}
+
+/* Background overlay */
+.modal {
+  display: none; 
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+/* Popup box */
+.modal-content {
+  background: #ffffff;
+  margin: 8% auto;
+  padding: 25px;
+  border-radius: 12px;
+  width: 320px;
+  box-shadow: 0 5px 18px rgba(0,0,0,0.2);
+  animation: fadeIn 0.3s ease;
+}
+
+/* Close button */
+.close {
+  float: right;
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.close:hover {
+  color: red;
+}
+
+/* Form styling */
+.modal-content form {
+  display: flex;
+  flex-direction: column;
+}
+
+.modal-content form input {
+  padding: 8px;
+  margin-bottom: 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.submit-btn {
+  background: #4CAF50;
+  color: white;
+  padding: 10px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.submit-btn:hover {
+  background: #45a049;
+}
+
+/* Smooth fade in animation */
+@keyframes fadeIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    .modal-content {
+      background: #fff;
+      padding: 25px;
+      width: 320px;
+      margin: 8% auto;
+      border-radius: 12px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { transform: scale(0.9); opacity: 0; }
+      to { transform: scale(1); opacity: 1; }
+    }
+
+    .close {
+      float: right;
+      font-size: 26px;
+      cursor: pointer;
+    }
+
+    .modal-content form {
+      display: flex;
+      flex-direction: column;
+      margin-top: 10px;
+    }
+
+    .modal-content input {
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-bottom: 12px;
+    }
+
+    .submit-btn {
+      padding: 10px;
+      background: #4CAF50;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+
+    .submit-btn:hover {
+      background: #45a049;
+    }
+
+.category-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 0;               /* IMPORTANT: no left gap now */
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(0, 120, 212, 0.12);
+  color: #0078d4;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 1px solid rgba(0, 120, 212, 0.25);
+  line-height: 1.2;
+}
+
+/* Optional: slightly different chip on hover */
+.column ul li:hover .category-chip {
+  background: rgba(0, 120, 212, 0.18);
+  border-color: rgba(0, 120, 212, 0.35);
+}
+
+/* Post layout spacing */
+.column ul li .post-header {
+  margin-bottom: 8px;
+}
+
+.column ul li .post-category {
+  margin: 0 0 12px 0; /* more space between category and description */
+}
+
+.column ul li .post-description {
+  margin: 0 0 12px 0; /* space between description and buttons */
+}
+
+/* Bigger description text */
+.column ul li .post-description small {
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #333;
+  display: block;
+}
+
+/* Space between description and buttons */
+.column ul li .post-actions {
+  display: flex;
+}
+
+/* Smaller Edit/Delete buttons */
+.column ul li .action-btn {
+  font-size: 0.75rem;
+  margin: 0; /* let .post-actions control spacing */
+}
+
+/* If your buttons are appended directly onto the li */
+.column ul li .action-btn {
+  margin-top: 0;      /* handled by description spacing now */
+  margin-right: 8px;
+}

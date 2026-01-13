@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkillLink</title>
+
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+  <header>
+    <h1>SkillLink</h1>
+    <nav>
+      <a href="/login.html" id="loginBtn" class="button">Login</a>
+      <a href="/register.html" id="registerBtn" class="button">Register</a>
+      <button id="logoutBtn" style="display: none;">Logout</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="search-section">
+      <h2>Find a Skill</h2>
+      <input type="text" id="searchInput" placeholder="e.g. Cooking, Python, Guitar">
+      <button id="searchBtn">Search</button>
+    </section>
+
+    <section class="skills-section">
+      <div class="skills-container">
+
+        <div class="column">
+          <h3>Skill Offers</h3>
+          <ul id="offersList">
+            <!-- JS will fill this from offers.json -->
+          </ul>
+          <button class="add-btn" id="addOfferBtn">+ Add Offer</button>
+        </div>
+
+        <div class="column">
+          <h3>Skill Requests</h3>
+          <ul id="requestsList">
+
+            <!-- JS will fill this from requests.json -->
+          </ul>
+          <button class="add-btn" id="addRequestBtn">+ Add Request</button>
+        </div>
+
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>2025 SkillLink | A Peer Skill-Sharing Platform</p>
+  </footer>
+
+  <!-- Login Modal -->
+  <div id="loginModalBackdrop" class="modal-backdrop">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+      <h3 id="loginTitle">Login</h3>
+      <label>Username<input id="login_username" type="text" autocomplete="username"></label>
+      <label>Password<input id="login_password" type="password" autocomplete="current-password"></label>
+      <div class="actions">
+        <button id="loginCancel" class="btn">Cancel</button>
+        <button id="loginSubmit" class="btn">Login</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Register Modal -->
+  <div id="registerModalBackdrop" class="modal-backdrop">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="registerTitle">
+      <h3 id="registerTitle">Register</h3>
+      <label>Username<input id="register_username" type="text" autocomplete="username"></label>
+      <label>Password<input id="register_password" type="password" autocomplete="new-password"></label>
+      <div class="actions">
+        <button id="registerCancel" class="btn">Cancel</button>
+        <button id="registerSubmit" class="btn">Register</button>
+      </div>
+    </div>
+  </div>
+
+<div id="editModal" class="modal-overlay">
+  <div class="modal-content">
+    <h3>Edit Skill Post</h3>
+
+    <label for="editSkillInput">Skill</label>
+    <input type="text" id="editSkillInput" />
+
+    <label for="editCategoryInput">Category</label>
+    <input id="editCategoryInput" type="text" placeholder="e.g. Programming, Music" />
+
+    <label for="editDescriptionInput">Description</label>
+    <textarea id="editDescriptionInput" placeholder="Describe what you teach/need"></textarea>
+
+    <div class="modal-actions">
+      <button id="editCancelBtn" class="action-btn delete-btn">Cancel</button>
+      <button id="editSaveBtn" class="action-btn edit-btn">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+  <div id="offerModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeOffer">&times;</span>
+      <h2>Add Skill Offer</h2>
+
+      <form id="offerForm">
+        <label for="offerSkill">What can you teach?</label>
+        <input type="text" id="offerSkill" required>
+
+        <label for="offerCategory">Category</label>
+        <input id="offerCategory" type="text" placeholder="e.g. Programming, Music" required>
+
+        <label for="offerDescription">Description</label>
+        <textarea id="offerDescription" placeholder="Describe what you teach" required></textarea>
+
+        <button type="submit" class="submit-btn">Submit</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="requestModal" class="modal">
+    <div class="modal-content">
+      <span class="close" id="closeRequest">&times;</span>
+      <h2>Add Skill Request</h2>
+
+      <form id="requestForm">
+        <label for="requestSkill">What do you want to learn?</label>
+        <input type="text" id="requestSkill" required>
+
+        <label for="requestCategory">Category</label>
+        <input id="requestCategory" type="text" placeholder="e.g. Programming, Music" required>
+
+        <label for="requestDescription">Description</label>
+        <textarea id="requestDescription" placeholder="Describe what you need" required></textarea>
+
+        <button type="submit" class="submit-btn">Submit</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/Benjamin.js"></script>
+  <script src="js/Pavian.js"></script>
+  <script src="js/Cheng.js"></script>
+</body>
+</html>

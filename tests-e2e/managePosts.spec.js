@@ -1,6 +1,7 @@
-const { test, expect } = require("@playwright/test");
+const { test, expect } = require("./coverage.fixture");
 const fs = require("fs");
 const path = require("path");
+const { saveCoverage } = require("./coverage-helper");
 
 // Adjust if your paths differ
 const offersFile = path.join(__dirname, "..", "data", "offers.json");
@@ -114,5 +115,9 @@ test.describe("SkillLink UI (edit/delete)", () => {
 
     // Alert auto-accepted; just confirm modal did not open
     await expect(page.locator("#editModal")).toBeHidden();
+  });
+
+  test.afterEach(async ({ page }, testInfo) => {
+    await saveCoverage(page, testInfo);
   });
 });
