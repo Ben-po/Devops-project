@@ -78,7 +78,12 @@ document.addEventListener("DOMContentLoaded", function () {
         `;
 
         if (currentUserId && o.userId && String(o.userId) === String(currentUserId)) {
-          const br = document.createElement('br');
+          const actions = document.createElement("div");
+          actions.className = "post-actions";
+
+          const editBtn = document.createElement('button');
+          editBtn.textContent = 'Edit';
+          editBtn.className = 'action-btn edit-btn';
           editBtn.addEventListener('click', () => handleEdit(o));
 
           const delBtn = document.createElement('button');
@@ -86,9 +91,9 @@ document.addEventListener("DOMContentLoaded", function () {
           delBtn.className = 'action-btn delete-btn';
           delBtn.addEventListener('click', () => handleDelete(o));
 
-          li.appendChild(br);
-          li.appendChild(editBtn);
-          li.appendChild(delBtn);
+          actions.appendChild(editBtn);
+          actions.appendChild(delBtn);
+          li.appendChild(actions);
         }
 
         offersList.appendChild(li);

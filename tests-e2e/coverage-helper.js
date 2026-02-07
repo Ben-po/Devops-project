@@ -10,8 +10,17 @@ function safeFileName(name) {
 }
 
 async function saveCoverage(page, testInfo) {
-  // Grab browser coverage object (Istanbul)
-  const coverage = await page.evaluate(() => window.__coverage__ || null);
+  if (!page) return;
+  if (typeof page.isClosed === "function" && page.isClosed()) return;
+
+  let coverage = null;
+  try {
+    // Grab browser coverage object (Istanbul)
+    coverage = await page.evaluate(() => window.__coverage__ || null);
+  } catch {
+    // Page/context can be closed if the test is interrupted or crashes.
+    return;
+  }
 
   if (!coverage) return; // if page never loaded instrumented JS
 
@@ -20,7 +29,7 @@ async function saveCoverage(page, testInfo) {
 
   const file = path.join(
     outDir,
-    `${Date.now()}_${safeFileName(testInfo.title)}.json`
+    `${Date.now()}_${safeFileName(testInfo?.title || "unknown")}.json`
   );
 
   fs.writeFileSync(file, JSON.stringify(coverage), "utf8");

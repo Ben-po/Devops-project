@@ -6,13 +6,5 @@
     "skill": "OldSkill",
     "category": "OldCat",
     "description": "Old description text"
-  },
-  {
-    "id": 22,
-    "userId": null,
-    "username": "someone",
-    "skill": "X",
-    "category": "Y",
-    "description": "Long enough description"
   }
 ]

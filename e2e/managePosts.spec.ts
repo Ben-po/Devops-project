@@ -1,30 +1,45 @@
-const { test, expect } = require("./coverage.fixture");
-const fs = require("fs");
-const path = require("path");
-const { saveCoverage } = require("./coverage-helper");
+import fs from "node:fs";
+import path from "node:path";
+
+import { test, expect } from "../tests-e2e/coverage-fixture";
 
 // Adjust if your paths differ
 const offersFile = path.join(__dirname, "..", "data", "offers.json");
 const requestsFile = path.join(__dirname, "..", "data", "requests.json");
 const usersFile = path.join(__dirname, "..", "utils", "skilllink.json");
 
-function writeJson(p, data) {
-  fs.writeFileSync(p, JSON.stringify(data, null, 2), "utf8");
+type User = {
+  id: string;
+  username: string;
+  passwordHash: string;
+};
+
+type Post = {
+  id: number;
+  userId: string;
+  username: string;
+  skill: string;
+  category: string;
+  description: string;
+};
+
+function writeJsonFile(filePath: string, data: unknown): void {
+  fs.writeFileSync(filePath, JSON.stringify(data, null, 2), "utf8");
 }
 
-function makeToken(payload) {
+function makeFakeToken(payload: Record<string, unknown>): string {
   return Buffer.from(JSON.stringify(payload)).toString("base64");
 }
 
 test.describe("SkillLink UI (edit/delete)", () => {
   test.beforeEach(async ({ page }) => {
     // Seed backend data files BEFORE page loads
-    const myUser = { id: "u1", username: "pavian", passwordHash: "x" };
-    const otherUser = { id: "u2", username: "alex", passwordHash: "x" };
+    const myUser: User = { id: "u1", username: "pavian", passwordHash: "x" };
+    const otherUser: User = { id: "u2", username: "alex", passwordHash: "x" };
 
-    writeJson(usersFile, [myUser, otherUser]);
+    writeJsonFile(usersFile, [myUser, otherUser]);
 
-    writeJson(offersFile, [
+    const offers: Post[] = [
       {
         id: 11,
         userId: myUser.id,
@@ -33,9 +48,10 @@ test.describe("SkillLink UI (edit/delete)", () => {
         category: "OldCat",
         description: "Old description text",
       },
-    ]);
+    ];
+    writeJsonFile(offersFile, offers);
 
-    writeJson(requestsFile, [
+    const requests: Post[] = [
       {
         id: 33,
         userId: otherUser.id,
@@ -44,14 +60,15 @@ test.describe("SkillLink UI (edit/delete)", () => {
         category: "ReqCat",
         description: "Req description long enough",
       },
-    ]);
+    ];
+    writeJsonFile(requestsFile, requests);
 
     // Auto-accept alerts/confirms
     page.on("dialog", (d) => d.accept());
   });
 
   test("Edit offer: opens modal and saves changes", async ({ page }) => {
-    const token = makeToken({ id: "u1", username: "pavian" });
+    const token = makeFakeToken({ id: "u1", username: "pavian" });
 
     // Must set both, because your code reads both
     await page.addInitScript(({ token }) => {
@@ -80,7 +97,7 @@ test.describe("SkillLink UI (edit/delete)", () => {
   });
 
   test("Delete request: confirm + removes post", async ({ page }) => {
-    const token = makeToken({ id: "u2", username: "alex" });
+    const token = makeFakeToken({ id: "u2", username: "alex" });
 
     await page.addInitScript(({ token }) => {
       localStorage.setItem("sl_token", token);
@@ -105,7 +122,7 @@ test.describe("SkillLink UI (edit/delete)", () => {
     // With no token, buttons usually won't show (because currentUserId is null).
     // So we directly call handleEdit to test the guard.
     await page.evaluate(() => {
-      window.handleEdit({
+      (window as any).handleEdit({
         id: 11,
         skill: "OldSkill",
         category: "OldCat",
@@ -115,9 +132,5 @@ test.describe("SkillLink UI (edit/delete)", () => {
 
     // Alert auto-accepted; just confirm modal did not open
     await expect(page.locator("#editModal")).toBeHidden();
-  });
-
-  test.afterEach(async ({ page }, testInfo) => {
-    await saveCoverage(page, testInfo);
   });
 });

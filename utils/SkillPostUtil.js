@@ -19,13 +19,24 @@ function readJson(file) {
   }
 }
 
+function readJsonArray(file) {
+  const parsed = readJson(file);
+  if (!Array.isArray(parsed)) {
+    return { items: [], coerced: true };
+  }
+  return { items: parsed, coerced: false };
+}
+
 function writeJson(file, data) {
   fs.writeFileSync(file, JSON.stringify(data, null, 2), "utf8");
 }
 
 // Ensure each post has an id and normalized fields. If missing, add ids and write back.
 function normalizeAndLoad() {
-  const offers = readJson(offersFile).map((o) => ({
+  const offersRead = readJsonArray(offersFile);
+  const requestsRead = readJsonArray(requestsFile);
+
+  const offers = offersRead.items.map((o) => ({
     id: o.id || null,
     userId: (o.userId ?? null),
     username: o.username || o.name || "",
@@ -34,7 +45,7 @@ function normalizeAndLoad() {
     description: o.description || ""
   }));
 
-  const requests = readJson(requestsFile).map((r) => ({
+  const requests = requestsRead.items.map((r) => ({
     id: r.id || null,
     userId: (r.userId ?? null),
     username: r.username || r.name || "",
@@ -46,7 +57,7 @@ function normalizeAndLoad() {
   // assign ids where missing
   const all = offers.concat(requests);
   let maxId = all.reduce((m, p) => Math.max(m, p.id || 0), 0);
-  let changed = false;
+  let changed = offersRead.coerced || requestsRead.coerced;
 
   for (const list of [offers, requests]) {
     for (const item of list) {
