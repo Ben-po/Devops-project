@@ -92,38 +92,34 @@ pipeline {
   }
 
   post {
-    success {
-      echo "CI/CD Pipeline SUCCESSFUL"
-    }
-    failure {
-      echo "Pipeline failed — check console logs"
-    }
+  success {
+    echo "CI/CD Pipeline SUCCESSFUL"
+    emailext(
+      to: 'nathanielchengyx@gmail.com',
+      subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+      body: """Build SUCCESS<br/>
+Job: ${env.JOB_NAME}<br/>
+Build: #${env.BUILD_NUMBER}<br/>
+URL: ${env.BUILD_URL}<br/>"""
+    )
   }
 
-  post {
-    success {
-      emailext(
-        to: 'nathanielchengyx@gmail.com',
-        subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-        body: """Build SUCCESS
-
-  Job: ${env.JOB_NAME}
-  Build: #${env.BUILD_NUMBER}
-  URL: ${env.BUILD_URL}
-  """
-      )
-    }
-
-    failure {
-      emailext(
-        to: 'nathanielchengyx@gmail.com',
-        subject: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-        body: """Build FAILED
-
-  Check console logs:
-  ${env.BUILD_URL}
-  """
-      )
-    }
+  failure {
+    echo "Pipeline failed — check console logs"
+    emailext(
+      to: 'nathanielchengyx@gmail.com',
+      subject: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+      body: """Build FAILED<br/>
+Job: ${env.JOB_NAME}<br/>
+Build: #${env.BUILD_NUMBER}<br/>
+URL: ${env.BUILD_URL}<br/>
+Check Console Output for errors."""
+    )
   }
+
+  always {
+    echo "Pipeline finished (success or failure)."
+  }
+}
+
 }
