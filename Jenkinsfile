@@ -99,4 +99,31 @@ pipeline {
       echo "Pipeline failed — check console logs"
     }
   }
+
+  post {
+    success {
+      emailext(
+        to: 'nathanielchengyx@gmail.com',
+        subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+        body: """Build SUCCESS
+
+  Job: ${env.JOB_NAME}
+  Build: #${env.BUILD_NUMBER}
+  URL: ${env.BUILD_URL}
+  """
+      )
+    }
+
+    failure {
+      emailext(
+        to: 'nathanielchengyx@gmail.com',
+        subject: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+        body: """Build FAILED
+
+  Check console logs:
+  ${env.BUILD_URL}
+  """
+      )
+    }
+  }
 }
