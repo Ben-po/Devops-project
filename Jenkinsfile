@@ -57,16 +57,16 @@ pipeline {
         sh """
           set -eux
 
-          # create a Linux-friendly kubeconfig inside the container
-          minikube kubectl -- config view --raw > /tmp/kubeconfig
-          export KUBECONFIG=/tmp/kubeconfig
+          # generate kubeconfig inside container
+          minikube update-context
 
-          minikube kubectl -- apply -f k8s/deployment.yaml
-          minikube kubectl -- apply -f k8s/service.yaml
+          # now kubectl works normally
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
 
-          minikube kubectl -- rollout restart deployment devops-app
-          minikube kubectl -- get pods
-          minikube kubectl -- get svc
+          kubectl rollout restart deployment devops-app
+          kubectl get pods
+          kubectl get svc
         """
       }
     }
