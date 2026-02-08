@@ -57,24 +57,16 @@ pipeline {
         sh """
           set -eux
 
-          echo '--- KUBE CONTEXTS ---'
-          kubectl config get-contexts || true
+          # create a Linux-friendly kubeconfig inside the container
+          minikube kubectl -- config view --raw > /tmp/kubeconfig
+          export KUBECONFIG=/tmp/kubeconfig
 
-          # force correct context
-          kubectl config use-context minikube || true
+          minikube kubectl -- apply -f k8s/deployment.yaml
+          minikube kubectl -- apply -f k8s/service.yaml
 
-          # apply without validation (fixes openapi/auth issue)
-          kubectl apply --validate=false -f k8s/deployment.yaml
-          kubectl apply --validate=false -f k8s/service.yaml
-
-          # restart deployment to pick new image
-          kubectl rollout restart deployment devops-app
-
-          echo '--- POD STATUS ---'
-          kubectl get pods
-
-          echo '--- SERVICE STATUS ---'
-          kubectl get svc
+          minikube kubectl -- rollout restart deployment devops-app
+          minikube kubectl -- get pods
+          minikube kubectl -- get svc
         """
       }
     }
