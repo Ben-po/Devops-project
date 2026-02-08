@@ -54,20 +54,39 @@ pipeline {
 
     stage("Deploy to Minikube") {
       steps {
-        sh """
+        sh '''
           set -eux
 
-          # generate kubeconfig inside container
-          minikube update-context
+          cat > /tmp/kubeconfig-linux <<EOF
+    apiVersion: v1
+    kind: Config
+    clusters:
+    - name: minikube
+      cluster:
+        certificate-authority: /root/.minikube/ca.crt
+        server: https://host.docker.internal:8443
+    contexts:
+    - name: minikube
+      context:
+        cluster: minikube
+        user: minikube
+    current-context: minikube
+    users:
+    - name: minikube
+      user:
+        client-certificate: /root/.minikube/profiles/minikube/client.crt
+        client-key: /root/.minikube/profiles/minikube/client.key
+    EOF
 
-          # now kubectl works normally
+          export KUBECONFIG=/tmp/kubeconfig-linux
+
+          kubectl get nodes
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
-
           kubectl rollout restart deployment devops-app
           kubectl get pods
           kubectl get svc
-        """
+        '''
       }
     }
   }
