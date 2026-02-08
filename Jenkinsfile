@@ -1,31 +1,48 @@
 pipeline {
   agent any
 
+  environment {
+    IMAGE_NAME = "devops-app"
+    IMAGE_TAG  = "1"
+
+    // make kubectl inside Jenkins use mounted kubeconfig
+    KUBECONFIG = "/var/jenkins_home/.kube/config"
+  }
+
   tools {
     nodejs "node18"
   }
 
-  environment {
-    IMAGE_NAME = "devops-app"
-    IMAGE_TAG  = "1"
-  }
-
   stages {
+
     stage("Checkout") {
       steps {
         checkout scm
       }
     }
 
-    stage("Install") {
+    stage("Install Dependencies") {
       steps {
         sh "npm ci"
       }
     }
 
-    stage("Test") {
+    stage("Run Tests") {
       steps {
         sh "npm test"
+      }
+    }
+
+    // 🔥 helpful debugging (great for report screenshots)
+    stage("Tools Check") {
+      steps {
+        sh """
+          echo '--- TOOL VERSIONS ---'
+          node -v
+          npm -v
+          docker --version
+          kubectl version --client
+        """
       }
     }
 
@@ -37,24 +54,38 @@ pipeline {
 
     stage("Deploy to Minikube") {
       steps {
-        sh "kubectl apply -f k8s/deployment.yaml"
-        sh "kubectl apply -f k8s/service.yaml"
-        sh "kubectl rollout restart deployment devops-app"
-        sh "kubectl get pods"
-        sh "kubectl get svc"
+        sh """
+          set -eux
+
+          echo '--- KUBE CONTEXTS ---'
+          kubectl config get-contexts || true
+
+          # force correct context
+          kubectl config use-context minikube || true
+
+          # apply without validation (fixes openapi/auth issue)
+          kubectl apply --validate=false -f k8s/deployment.yaml
+          kubectl apply --validate=false -f k8s/service.yaml
+
+          # restart deployment to pick new image
+          kubectl rollout restart deployment devops-app
+
+          echo '--- POD STATUS ---'
+          kubectl get pods
+
+          echo '--- SERVICE STATUS ---'
+          kubectl get svc
+        """
       }
     }
   }
 
   post {
-    always {
-      echo "Pipeline finished (success or failure)."
-    }
     success {
-      echo "SUCCESS: Build/Test/Deploy completed."
+      echo "CI/CD Pipeline SUCCESSFUL"
     }
     failure {
-      echo "FAILED: Check Console Output for the error."
+      echo "Pipeline failed — check console logs"
     }
   }
 }
