@@ -65,7 +65,7 @@ clusters:
 - name: minikube
   cluster:
     certificate-authority: /var/jenkins_home/.minikube/ca.crt
-    server: https://192.168.49.2:8443
+    server: https://minikube:8443
 contexts:
 - name: minikube
   context:
