@@ -30,7 +30,7 @@ pipeline {
       steps {
         sh """
           echo '--- Backend + Frontend tests ---'
-          npm run test:my coverage
+          npm run test:my:coverage
         """
       }
     }
@@ -45,6 +45,12 @@ pipeline {
           docker --version
           kubectl version --client
         """
+      }
+    }
+
+    stage("Build Docker Image") {
+      steps {
+        sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
       }
     }
 
