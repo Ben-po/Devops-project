@@ -28,9 +28,13 @@ pipeline {
 
     stage("Run Tests") {
       steps {
-        sh "npm test"
+        sh """
+          echo '--- Backend + Frontend tests ---'
+          npm run test:my coverage
+        """
       }
     }
+
 
     stage("Tools Check") {
       steps {
