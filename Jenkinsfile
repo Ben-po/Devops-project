@@ -4,8 +4,8 @@ pipeline {
   environment {
     IMAGE_NAME = "devops-app"
     IMAGE_TAG  = "1"
-
-    KUBECONFIG = "/var/jenkins_home/.kube/config"
+    // Jenkins will use this during kubectl commands
+    KUBECONFIG = "/tmp/kubeconfig-linux"
   }
 
   tools {
@@ -32,7 +32,7 @@ pipeline {
       }
     }
 
-    // 🔥 helpful debugging (great for report screenshots)
+    // helpful debugging (good for report screenshots)
     stage("Tools Check") {
       steps {
         sh """
@@ -56,9 +56,6 @@ pipeline {
         sh '''
           set -eux
 
-          # Use the Linux-compatible kubeconfig inside the Jenkins container
-          export KUBECONFIG=/tmp/kubeconfig-linux
-
           echo "--- Current context ---"
           kubectl config current-context || true
           kubectl config use-context minikube || true
@@ -76,42 +73,44 @@ pipeline {
 
           echo ""
           echo "Deployment complete!"
-          echo "Open the app in your browser (on your Windows host): http://localhost:51437"
+          echo "Open the app in your browser: http://localhost:51437"
           echo "   (If it doesn't load, run: minikube service devops-app-svc --url)"
         '''
       }
     }
 
+  } // ✅ closes stages block
 
   post {
-  success {
-    echo "CI/CD Pipeline SUCCESSFUL"
-    emailext(
-      to: 'nathanielchengyx@gmail.com',
-      subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-      body: """Build SUCCESS<br/>
+    success {
+      echo "CI/CD Pipeline SUCCESSFUL"
+      emailext(
+        to: 'nathanielchengyx@gmail.com',
+        subject: "SUCCESS: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+        mimeType: 'text/html',
+        body: """Build SUCCESS<br/>
 Job: ${env.JOB_NAME}<br/>
 Build: #${env.BUILD_NUMBER}<br/>
 URL: ${env.BUILD_URL}<br/>"""
-    )
-  }
+      )
+    }
 
-  failure {
-    echo "Pipeline failed — check console logs"
-    emailext(
-      to: 'nathanielchengyx@gmail.com',
-      subject: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-      body: """Build FAILED<br/>
+    failure {
+      echo "Pipeline failed — check console logs"
+      emailext(
+        to: 'nathanielchengyx@gmail.com',
+        subject: "FAILED: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+        mimeType: 'text/html',
+        body: """Build FAILED<br/>
 Job: ${env.JOB_NAME}<br/>
 Build: #${env.BUILD_NUMBER}<br/>
 URL: ${env.BUILD_URL}<br/>
 Check Console Output for errors."""
-    )
+      )
+    }
+
+    always {
+      echo "Pipeline finished (success or failure)."
+    }
   }
 
-  always {
-    echo "Pipeline finished (success or failure)."
-  }
-}
-
-}
