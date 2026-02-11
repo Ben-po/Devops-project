@@ -49,7 +49,12 @@ pipeline {
     stage("Build Docker Image (Minikube)") {
       steps {
         sh '''
-          eval $(minikube -p minikube docker-env)
+          set -eux
+          eval $(minikube -p minikube docker-env --shell sh)
+          # IMPORTANT: replace 127.0.0.1 with the minikube container hostname
+          export DOCKER_HOST=$(echo "$DOCKER_HOST" | sed 's/127.0.0.1/minikube/g')
+
+          docker version
           docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
           docker images | grep ${IMAGE_NAME} || true
         '''
