@@ -53,28 +53,29 @@ pipeline {
     stage("Deploy to Minikube") {
       steps {
         sh '''
-          set -eux
+            set -eux
 
-          export KUBECONFIG=/root/.kube/config
+            export KUBECONFIG=/var/jenkins_home/.kube/config
 
-          echo "--- Current context ---"
-          kubectl config current-context || true
-          kubectl config use-context minikube || true
+            echo "--- Current context ---"
+            kubectl config current-context || true
+            kubectl config use-context minikube || true
 
-          echo "--- Apply Kubernetes manifests ---"
-          kubectl apply -f k8s/deployment.yaml
-          kubectl apply -f k8s/service.yaml
+            echo "--- Apply Kubernetes manifests ---"
+            kubectl apply -f k8s/deployment.yaml
+            kubectl apply -f k8s/service.yaml
 
-          echo "--- Wait for rollout ---"
-          kubectl rollout status deployment/devops-app --timeout=120s
+            echo "--- Wait for rollout ---"
+            kubectl rollout status deployment/devops-app --timeout=120s
 
-          echo "--- Verify resources ---"
-          kubectl get pods -o wide
-          kubectl get svc
+            echo "--- Verify resources ---"
+            kubectl get pods -o wide
+            kubectl get svc
 
-          echo ""
-          echo "Deployment complete!"
-        '''
+            echo ""
+            echo "Deployment complete!"
+          '''
+
       }
     }
 
