@@ -3,8 +3,7 @@ pipeline {
 
   environment {
     IMAGE_NAME = "devops-app"
-    IMAGE_TAG  = "1"
-    // Jenkins will use this during kubectl commands
+    IMAGE_TAG  = "${env.BUILD_NUMBER}"
     KUBECONFIG = "/tmp/kubeconfig-linux"
   }
 
@@ -28,29 +27,29 @@ pipeline {
 
     stage("Run Tests") {
       steps {
-        sh """
-          echo '--- Backend + Frontend tests ---'
+        sh '''
+          echo "--- Backend + Frontend tests ---"
           npm run test:my:coverage
-        """
+        '''
       }
     }
-
 
     stage("Tools Check") {
       steps {
-        sh """
-          echo '--- TOOL VERSIONS ---'
+        sh '''
+          echo "--- TOOL VERSIONS ---"
           node -v
           npm -v
-          docker --version
           kubectl version --client
-        """
+          minikube version
+        '''
       }
     }
 
-    stage("Build Docker Image") {
+    stage("Build Docker Image (Minikube)") {
       steps {
-        sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+        sh "minikube image build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+        sh "minikube image list | grep ${IMAGE_NAME} || true"
       }
     }
 
@@ -60,40 +59,40 @@ pipeline {
           set -eux
 
           cat > /tmp/kubeconfig-linux <<'EOF'
-    apiVersion: v1
-    kind: Config
-    clusters:
-    - name: minikube
-      cluster:
-        certificate-authority: /var/jenkins_home/.minikube/ca.crt
-        server: https://host.docker.internal:8443
-    contexts:
-    - name: minikube
-      context:
-        cluster: minikube
-        user: minikube
-    current-context: minikube
-    users:
-    - name: minikube
-      user:
-        client-certificate: /var/jenkins_home/.minikube/profiles/minikube/client.crt
-        client-key: /var/jenkins_home/.minikube/profiles/minikube/client.key
-    EOF
+apiVersion: v1
+kind: Config
+clusters:
+- name: minikube
+  cluster:
+    certificate-authority: /var/jenkins_home/.minikube/ca.crt
+    server: https://host.docker.internal:8443
+contexts:
+- name: minikube
+  context:
+    cluster: minikube
+    user: minikube
+current-context: minikube
+users:
+- name: minikube
+  user:
+    client-certificate: /var/jenkins_home/.minikube/profiles/minikube/client.crt
+    client-key: /var/jenkins_home/.minikube/profiles/minikube/client.key
+EOF
 
           export KUBECONFIG=/tmp/kubeconfig-linux
 
           kubectl get nodes
           kubectl apply --validate=false -f k8s/deployment.yaml
           kubectl apply --validate=false -f k8s/service.yaml
-          kubectl rollout restart deployment devops-app
+
+          kubectl set image deployment/devops-app devops-app=${IMAGE_NAME}:${IMAGE_TAG}
           kubectl rollout status deployment/devops-app --timeout=120s
+
           kubectl get pods -o wide
           kubectl get svc
         '''
       }
     }
-
-
   }
 
   post {
