@@ -50,7 +50,7 @@ pipeline {
       steps {
         sh '''
           set -eux
-          minikube image build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+          minikube image build -t devops-app:latest ..
           minikube image list | grep "${IMAGE_NAME}:${IMAGE_TAG}" || true
         '''
       }
