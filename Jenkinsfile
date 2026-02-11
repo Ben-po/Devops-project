@@ -28,7 +28,7 @@ pipeline {
     stage("Run Tests") {
       steps {
         sh '''
-          echo "--- Backend + Frontend tests ---"
+          echo --- Backend + Frontend tests ---
           npm run test:my:coverage
         '''
       }
@@ -37,7 +37,7 @@ pipeline {
     stage("Tools Check") {
       steps {
         sh '''
-          echo "--- TOOL VERSIONS ---"
+          echo --- TOOL VERSIONS ---
           node -v
           npm -v
           kubectl version --client
@@ -48,8 +48,11 @@ pipeline {
 
     stage("Build Docker Image (Minikube)") {
       steps {
-        sh "minikube image build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
-        sh "minikube image list | grep ${IMAGE_NAME} || true"
+        sh '''
+          eval $(minikube -p minikube docker-env)
+          docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+          docker images | grep ${IMAGE_NAME} || true
+        '''
       }
     }
 
@@ -86,9 +89,9 @@ EOF
           kubectl apply --validate=false -f k8s/service.yaml
 
           kubectl set image deployment/devops-app devops-app=${IMAGE_NAME}:${IMAGE_TAG}
-          kubectl rollout status deployment/devops-app --timeout=120s
+          kubectl rollout status deployment/devops-app --timeout=180s
 
-          kubectl get pods -o wide
+          kubectl get pods -l app=devops-app -o wide
           kubectl get svc
         '''
       }
