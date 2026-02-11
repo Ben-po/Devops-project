@@ -28,7 +28,7 @@ pipeline {
     stage("Run Tests") {
       steps {
         sh '''
-          echo --- Backend + Frontend tests ---
+          echo "--- Backend + Frontend tests ---"
           npm run test:my:coverage
         '''
       }
@@ -37,7 +37,7 @@ pipeline {
     stage("Tools Check") {
       steps {
         sh '''
-          echo --- TOOL VERSIONS ---
+          echo "--- TOOL VERSIONS ---"
           node -v
           npm -v
           kubectl version --client
@@ -55,8 +55,6 @@ pipeline {
         '''
       }
     }
-
-  }
 
     stage("Deploy to Minikube") {
       steps {
@@ -86,19 +84,25 @@ EOF
 
           export KUBECONFIG=/tmp/kubeconfig-linux
 
+          echo "--- Cluster check ---"
           kubectl get nodes
+
+          echo "--- Apply manifests ---"
           kubectl apply --validate=false -f k8s/deployment.yaml
           kubectl apply --validate=false -f k8s/service.yaml
 
+          echo "--- Update image + rollout ---"
           kubectl set image deployment/devops-app devops-app=${IMAGE_NAME}:${IMAGE_TAG}
           kubectl rollout status deployment/devops-app --timeout=180s
 
+          echo "--- Verify ---"
           kubectl get pods -l app=devops-app -o wide
           kubectl get svc
         '''
       }
     }
-  }
+
+  } // end stages
 
   post {
     success {
