@@ -55,13 +55,15 @@ pipeline {
         sh '''
           set -eux
 
+          export KUBECONFIG=/root/.kube/config
+
           echo "--- Current context ---"
           kubectl config current-context || true
           kubectl config use-context minikube || true
 
           echo "--- Apply Kubernetes manifests ---"
-          kubectl apply --validate=false -f k8s/deployment.yaml
-          kubectl apply --validate=false -f k8s/service.yaml
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
 
           echo "--- Wait for rollout ---"
           kubectl rollout status deployment/devops-app --timeout=120s
@@ -72,11 +74,11 @@ pipeline {
 
           echo ""
           echo "Deployment complete!"
-          echo "Open the app in your browser: http://localhost:30080"
-          echo "   (If it doesn't load, run: minikube service devops-app-svc --url)"
+          echo "Open browser: minikube service devops-app-svc --url"
         '''
       }
     }
+
 
   } 
 
