@@ -44,24 +44,18 @@ pipeline {
       }
     }
 
-    stage("Build Docker Image") {
-      steps {
-        sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
-      }
-    }
-
     stage("Deploy to Minikube") {
       steps {
         sh '''
           set -eux
 
-          cat > /tmp/kubeconfig-linux <<EOF
+          cat > /tmp/kubeconfig-linux <<'EOF'
     apiVersion: v1
     kind: Config
     clusters:
     - name: minikube
       cluster:
-        certificate-authority: /root/.minikube/ca.crt
+        certificate-authority: /var/jenkins_home/.minikube/ca.crt
         server: https://host.docker.internal:8443
     contexts:
     - name: minikube
@@ -72,21 +66,23 @@ pipeline {
     users:
     - name: minikube
       user:
-        client-certificate: /root/.minikube/profiles/minikube/client.crt
-        client-key: /root/.minikube/profiles/minikube/client.key
+        client-certificate: /var/jenkins_home/.minikube/profiles/minikube/client.crt
+        client-key: /var/jenkins_home/.minikube/profiles/minikube/client.key
     EOF
 
           export KUBECONFIG=/tmp/kubeconfig-linux
 
           kubectl get nodes
-          kubectl apply -f k8s/deployment.yaml
-          kubectl apply -f k8s/service.yaml
+          kubectl apply --validate=false -f k8s/deployment.yaml
+          kubectl apply --validate=false -f k8s/service.yaml
           kubectl rollout restart deployment devops-app
-          kubectl get pods
+          kubectl rollout status deployment/devops-app --timeout=120s
+          kubectl get pods -o wide
           kubectl get svc
         '''
       }
     }
+
 
   }
 
