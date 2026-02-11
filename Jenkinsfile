@@ -74,13 +74,11 @@ pipeline {
 
           echo ""
           echo "Deployment complete!"
-          echo "Open browser: minikube service devops-app-svc --url"
         '''
       }
     }
 
-
-  } 
+  }
 
   post {
     success {
