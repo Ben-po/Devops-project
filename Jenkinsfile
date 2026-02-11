@@ -32,7 +32,6 @@ pipeline {
       }
     }
 
-    // helpful debugging (good for report screenshots)
     stage("Tools Check") {
       steps {
         sh """
@@ -73,13 +72,13 @@ pipeline {
 
           echo ""
           echo "Deployment complete!"
-          echo "Open the app in your browser: http://localhost:51437"
+          echo "Open the app in your browser: http://localhost:30080"
           echo "   (If it doesn't load, run: minikube service devops-app-svc --url)"
         '''
       }
     }
 
-  } // ✅ closes stages block
+  } 
 
   post {
     success {
