@@ -112,4 +112,4 @@ Check Console Output for errors."""
       echo "Pipeline finished (success or failure)."
     }
   }
-
+}
