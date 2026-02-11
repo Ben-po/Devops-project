@@ -53,29 +53,38 @@ pipeline {
     stage("Deploy to Minikube") {
       steps {
         sh '''
-            set -eux
+          set -eux
 
-            export KUBECONFIG=/var/jenkins_home/.kube/config
+          cat > /tmp/kubeconfig-linux <<EOF
+    apiVersion: v1
+    kind: Config
+    clusters:
+    - name: minikube
+      cluster:
+        certificate-authority: /root/.minikube/ca.crt
+        server: https://host.docker.internal:8443
+    contexts:
+    - name: minikube
+      context:
+        cluster: minikube
+        user: minikube
+    current-context: minikube
+    users:
+    - name: minikube
+      user:
+        client-certificate: /root/.minikube/profiles/minikube/client.crt
+        client-key: /root/.minikube/profiles/minikube/client.key
+    EOF
 
-            echo "--- Current context ---"
-            kubectl config current-context || true
-            kubectl config use-context minikube || true
+          export KUBECONFIG=/tmp/kubeconfig-linux
 
-            echo "--- Apply Kubernetes manifests ---"
-            kubectl apply -f k8s/deployment.yaml
-            kubectl apply -f k8s/service.yaml
-
-            echo "--- Wait for rollout ---"
-            kubectl rollout status deployment/devops-app --timeout=120s
-
-            echo "--- Verify resources ---"
-            kubectl get pods -o wide
-            kubectl get svc
-
-            echo ""
-            echo "Deployment complete!"
-          '''
-
+          kubectl get nodes
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
+          kubectl rollout restart deployment devops-app
+          kubectl get pods
+          kubectl get svc
+        '''
       }
     }
 
