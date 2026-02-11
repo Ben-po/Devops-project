@@ -5,7 +5,6 @@ pipeline {
     IMAGE_NAME = "devops-app"
     IMAGE_TAG  = "1"
 
-    // make kubectl inside Jenkins use mounted kubeconfig
     KUBECONFIG = "/var/jenkins_home/.kube/config"
   }
 
