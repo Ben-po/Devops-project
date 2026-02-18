@@ -50,11 +50,12 @@ pipeline {
       steps {
         sh '''
           set -eux
-          minikube image build -t devops-app:latest ..
-          minikube image list | grep "${IMAGE_NAME}:${IMAGE_TAG}" || true
+          minikube image build -t devops-app:${BUILD_NUMBER} .
+          minikube image list | grep "devops-app:${BUILD_NUMBER}" || true
         '''
       }
     }
+
 
     stage("Deploy to Minikube") {
       steps {
@@ -92,7 +93,7 @@ EOF
           kubectl apply --validate=false -f k8s/service.yaml
 
           echo "--- Update image + rollout ---"
-          kubectl set image deployment/devops-app devops-app=${IMAGE_NAME}:${IMAGE_TAG}
+          kubectl set image deployment/devops-app devops-app=devops-app:${BUILD_NUMBER}
           kubectl rollout status deployment/devops-app --timeout=600s
           kubectl get rs -l app=devops-app
 
