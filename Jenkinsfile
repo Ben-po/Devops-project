@@ -98,7 +98,7 @@ EOF
 
           # Force pods to restart so they use the refreshed :1 image
           kubectl rollout restart deployment/devops-app
-          kubectl rollout status deployment/devops-app --timeout=600s
+          kubectl rollout status deployment/devops-app --timeout=180s
 
           kubectl get pods -l app=devops-app -o wide
         '''
