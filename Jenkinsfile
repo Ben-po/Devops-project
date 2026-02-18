@@ -94,6 +94,7 @@ EOF
 
           echo "--- Update image + rollout ---"
           kubectl set image deployment/devops-app devops-app=devops-app:${BUILD_NUMBER}
+          kubectl delete pod -l app=devops-app --field-selector=status.phase=Terminating --ignore-not-found=true || true
           kubectl rollout status deployment/devops-app --timeout=180s
           kubectl get rs -l app=devops-app
 

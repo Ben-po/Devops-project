@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: devops-app
-          image: devops-app:1
-          imagePullPolicy: IfNotPresent
+          image: devops-app:PLACEHOLDER
+          imagePullPolicy: Never
           ports:
             - containerPort: 3000
