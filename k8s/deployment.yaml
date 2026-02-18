@@ -4,6 +4,7 @@ metadata:
   name: devops-app
 spec:
   replicas: 1
+  revisionHistoryLimit: 3
   selector:
     matchLabels:
       app: devops-app
@@ -14,7 +15,7 @@ spec:
     spec:
       containers:
         - name: devops-app
-          image: devops-app:0
+          image: devops-app:1
           imagePullPolicy: Never
           ports:
             - containerPort: 3000
