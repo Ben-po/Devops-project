@@ -100,11 +100,8 @@ EOF
           sed "s|image: devops-app:0|image: devops-app:${BUILD_NUMBER}|g" k8s/deployment.yaml | kubectl apply --validate=false -f -
           kubectl apply --validate=false -f k8s/service.yaml
 
-          echo "--- Update image ---"
-          kubectl set image deployment/devops-app devops-app=${IMAGE_NAME}:${IMAGE_TAG}
-
           echo "--- Rollout ---"
-          kubectl rollout status deployment/devops-app --timeout=600s || (
+          kubectl rollout status deployment/devops-app --timeout=180s || (
             echo "---- ROLLOUT FAILED: DEBUG INFO ----" &&
             kubectl get pods -l app=devops-app -o wide &&
             kubectl describe deploy devops-app &&
