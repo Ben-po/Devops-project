@@ -98,7 +98,7 @@ EOF
 
           kubectl delete pod -l app=devops-app --force --grace-period=0 || true
           kubectl rollout restart deployment/devops-app
-          kubectl rollout status deployment/devops-app --timeout=180s
+          kubectl rollout status deployment/devops-app --timeout=320s
 
           kubectl get pods -l app=devops-app -o wide
         '''
