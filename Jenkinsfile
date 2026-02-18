@@ -96,7 +96,7 @@ EOF
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
 
-          # Force pods to restart so they use the refreshed :1 image
+          kubectl delete pod -l app=devops-app --force --grace-period=0 || true
           kubectl rollout restart deployment/devops-app
           kubectl rollout status deployment/devops-app --timeout=180s
 
