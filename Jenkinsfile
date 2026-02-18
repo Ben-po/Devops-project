@@ -28,6 +28,7 @@ pipeline {
     stage("Run Tests") {
       steps {
         sh '''
+          set -eux
           echo "--- Backend + Frontend tests ---"
           npm run test:my:coverage
         '''
@@ -37,6 +38,7 @@ pipeline {
     stage("Tools Check") {
       steps {
         sh '''
+          set -eux
           echo "--- TOOL VERSIONS ---"
           node -v
           npm -v
@@ -46,22 +48,10 @@ pipeline {
       }
     }
 
-    stage("Build Docker Image (Minikube)") {
+    stage("Write kubeconfig") {
       steps {
         sh '''
           set -eux
-          minikube image build -t devops-app:${BUILD_NUMBER} .
-          minikube image list | grep "devops-app:${BUILD_NUMBER}" || true
-        '''
-      }
-    }
-
-
-    stage("Deploy to Minikube") {
-      steps {
-        sh '''
-          set -eux
-
           cat > /tmp/kubeconfig-linux <<'EOF'
 apiVersion: v1
 kind: Config
@@ -82,7 +72,27 @@ users:
     client-certificate: /var/jenkins_home/.minikube/profiles/minikube/client.crt
     client-key: /var/jenkins_home/.minikube/profiles/minikube/client.key
 EOF
+        '''
+      }
+    }
 
+    stage("Build Image into Minikube") {
+      steps {
+        sh '''
+          set -eux
+          # IMPORTANT: build from repo root (.)
+          minikube image build -t ${IMAGE_NAME}:${IMAGE_TAG} .
+
+          echo "--- Confirm image exists in Minikube image store ---"
+          minikube image list | grep -F "${IMAGE_NAME}:${IMAGE_TAG}"
+        '''
+      }
+    }
+
+    stage("Deploy to Minikube") {
+      steps {
+        sh '''
+          set -eux
           export KUBECONFIG=/tmp/kubeconfig-linux
 
           echo "--- Cluster check ---"
@@ -92,20 +102,27 @@ EOF
           kubectl apply --validate=false -f k8s/deployment.yaml
           kubectl apply --validate=false -f k8s/service.yaml
 
-          echo "--- Update image + rollout ---"
-          kubectl set image deployment/devops-app devops-app=devops-app:${BUILD_NUMBER}
-          kubectl delete pod -l app=devops-app --field-selector=status.phase=Terminating --ignore-not-found=true || true
-          kubectl rollout status deployment/devops-app --timeout=180s
-          kubectl get rs -l app=devops-app
+          echo "--- Update image ---"
+          kubectl set image deployment/devops-app devops-app=${IMAGE_NAME}:${IMAGE_TAG}
+
+          echo "--- Rollout ---"
+          # Give more time; your previous 180s often times out
+          kubectl rollout status deployment/devops-app --timeout=600s || (
+            echo "---- ROLLOUT FAILED: DEBUG INFO ----" &&
+            kubectl get pods -l app=devops-app -o wide &&
+            kubectl describe deploy devops-app &&
+            kubectl describe pods -l app=devops-app &&
+            exit 1
+          )
 
           echo "--- Verify ---"
+          kubectl get rs -l app=devops-app
           kubectl get pods -l app=devops-app -o wide
           kubectl get svc
         '''
       }
     }
-
-  } // end stages
+  }
 
   post {
     success {
