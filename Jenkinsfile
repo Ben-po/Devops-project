@@ -97,14 +97,13 @@ EOF
           kubectl get nodes
 
           echo "--- Apply manifests ---"
-          kubectl apply --validate=false -f k8s/deployment.yaml
+          sed "s|image: devops-app:0|image: devops-app:${BUILD_NUMBER}|g" k8s/deployment.yaml | kubectl apply --validate=false -f -
           kubectl apply --validate=false -f k8s/service.yaml
 
           echo "--- Update image ---"
           kubectl set image deployment/devops-app devops-app=${IMAGE_NAME}:${IMAGE_TAG}
 
           echo "--- Rollout ---"
-          # Give more time; your previous 180s often times out
           kubectl rollout status deployment/devops-app --timeout=600s || (
             echo "---- ROLLOUT FAILED: DEBUG INFO ----" &&
             kubectl get pods -l app=devops-app -o wide &&
