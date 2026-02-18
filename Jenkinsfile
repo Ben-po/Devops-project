@@ -80,11 +80,20 @@ EOF
       steps {
         sh '''
           set -eux
-          echo "--- Build directly into Minikube Docker daemon ---"
-          eval $(minikube docker-env)
+          echo "--- Build using Jenkins Docker daemon ---"
           docker build -t devops-app:${BUILD_NUMBER} .
-          echo "--- Confirm image exists ---"
-          docker images | grep devops-app
+
+          echo "--- Save image to tar ---"
+          docker save devops-app:${BUILD_NUMBER} -o /tmp/devops-app-${BUILD_NUMBER}.tar
+
+          echo "--- Load image into Minikube ---"
+          minikube image load /tmp/devops-app-${BUILD_NUMBER}.tar
+
+          echo "--- Confirm image exists in Minikube ---"
+          minikube image list | grep devops-app
+
+          echo "--- Cleanup tar ---"
+          rm /tmp/devops-app-${BUILD_NUMBER}.tar
         '''
       }
     }
