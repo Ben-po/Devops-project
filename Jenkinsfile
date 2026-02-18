@@ -80,11 +80,9 @@ EOF
       steps {
         sh '''
           set -eux
-          # IMPORTANT: build from repo root (.)
-          minikube image build -t ${IMAGE_NAME}:${IMAGE_TAG} .
-
-          echo "--- Confirm image exists in Minikube image store ---"
-          minikube image list | grep -F "${IMAGE_NAME}:${IMAGE_TAG}"
+          docker build -t devops-app:${BUILD_NUMBER} .
+          minikube image load devops-app:${BUILD_NUMBER}
+          minikube image list | grep -F "devops-app:${BUILD_NUMBER}"
         '''
       }
     }
