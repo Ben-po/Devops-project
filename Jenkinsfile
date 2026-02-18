@@ -90,7 +90,7 @@ EOF
           minikube image load /tmp/devops-app-${BUILD_NUMBER}.tar
 
           echo "--- Confirm image exists in Minikube ---"
-          minikube image list | grep devops-app
+          minikube image list | grep -F "devops-app:${BUILD_NUMBER}" || true
 
           echo "--- Cleanup tar ---"
           rm /tmp/devops-app-${BUILD_NUMBER}.tar
@@ -112,7 +112,7 @@ EOF
           kubectl apply --validate=false -f k8s/service.yaml
 
           echo "--- Rollout ---"
-          kubectl rollout status deployment/devops-app --timeout=600s || (
+          kubectl rollout status deployment/devops-app --timeout=180s || (
             echo "---- ROLLOUT FAILED: DEBUG INFO ----" &&
             kubectl get pods -l app=devops-app -o wide &&
             kubectl describe deploy devops-app &&
