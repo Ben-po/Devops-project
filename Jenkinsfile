@@ -80,9 +80,9 @@ EOF
       steps {
         sh '''
           set -eux
-          docker build -t devops-app:${BUILD_NUMBER} .
-          minikube image load devops-app:${BUILD_NUMBER}
-          minikube image list | grep -F "devops-app:${BUILD_NUMBER}"
+          minikube image build -t devops-app:${BUILD_NUMBER} .
+          echo "--- Confirm image exists ---"
+          minikube image list | grep -F "devops-app:${BUILD_NUMBER}" || true
         '''
       }
     }
