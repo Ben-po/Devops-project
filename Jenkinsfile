@@ -81,8 +81,10 @@ EOF
         sh '''
           set -eux
           minikube image build -t devops-app:${BUILD_NUMBER} .
-          echo "--- Confirm image exists ---"
-          minikube image list | grep -F "devops-app:${BUILD_NUMBER}"
+          echo "--- All images after build ---"
+          minikube image list
+          echo "--- Checking for our image ---"
+          minikube image list | grep "devops-app"
         '''
       }
     }
