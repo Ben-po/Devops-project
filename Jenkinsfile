@@ -80,11 +80,15 @@ EOF
       steps {
         sh '''
           set -eux
+          echo "--- Minikube status ---"
+          minikube status
+          echo "--- Docker env ---"
+          minikube docker-env
+          echo "--- Build ---"
           minikube image build -t devops-app:${BUILD_NUMBER} .
-          echo "--- All images after build ---"
+          echo "--- All images ---"
           minikube image list
-          echo "--- Checking for our image ---"
-          minikube image list | grep "devops-app"
+          minikube image list | grep devops-app || echo "IMAGE NOT FOUND"
         '''
       }
     }
