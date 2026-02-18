@@ -3,7 +3,7 @@ pipeline {
 
   environment {
     IMAGE_NAME = "devops-app"
-    IMAGE_TAG  = "${env.BUILD_NUMBER}"
+    IMAGE_TAG  = "1"
     KUBECONFIG = "/tmp/kubeconfig-linux"
   }
 
@@ -80,20 +80,9 @@ EOF
       steps {
         sh '''
           set -eux
-          echo "--- Build using Jenkins Docker daemon ---"
-          docker build -t devops-app:${BUILD_NUMBER} .
-
-          echo "--- Save image to tar ---"
-          docker save devops-app:${BUILD_NUMBER} -o /tmp/devops-app-${BUILD_NUMBER}.tar
-
-          echo "--- Load image into Minikube ---"
-          minikube image load /tmp/devops-app-${BUILD_NUMBER}.tar
-
-          echo "--- Confirm image exists in Minikube ---"
-          minikube image list | grep -F "devops-app:${BUILD_NUMBER}" || true
-
-          echo "--- Cleanup tar ---"
-          rm /tmp/devops-app-${BUILD_NUMBER}.tar
+          docker build --no-cache -t ${IMAGE_NAME}:${IMAGE_TAG} .
+          minikube image load ${IMAGE_NAME}:${IMAGE_TAG}
+          minikube image list | grep -F "${IMAGE_NAME}:${IMAGE_TAG}"
         '''
       }
     }
@@ -104,26 +93,14 @@ EOF
           set -eux
           export KUBECONFIG=/tmp/kubeconfig-linux
 
-          echo "--- Cluster check ---"
-          kubectl get nodes
+          kubectl apply -f k8s/deployment.yaml
+          kubectl apply -f k8s/service.yaml
 
-          echo "--- Apply manifests ---"
-          sed "s|image: devops-app:1|image: devops-app:${BUILD_NUMBER}|g" k8s/deployment.yaml | kubectl apply --validate=false -f -
-          kubectl apply --validate=false -f k8s/service.yaml
+          # Force pods to restart so they use the refreshed :1 image
+          kubectl rollout restart deployment/devops-app
+          kubectl rollout status deployment/devops-app --timeout=600s
 
-          echo "--- Rollout ---"
-          kubectl rollout status deployment/devops-app --timeout=180s || (
-            echo "---- ROLLOUT FAILED: DEBUG INFO ----" &&
-            kubectl get pods -l app=devops-app -o wide &&
-            kubectl describe deploy devops-app &&
-            kubectl describe pods -l app=devops-app &&
-            exit 1
-          )
-
-          echo "--- Verify ---"
-          kubectl get rs -l app=devops-app
           kubectl get pods -l app=devops-app -o wide
-          kubectl get svc
         '''
       }
     }
