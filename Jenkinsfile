@@ -88,6 +88,9 @@ EOF
           kubectl apply --validate=false -f k8s/deployment.yaml
           kubectl apply --validate=false -f k8s/service.yaml
 
+          echo "--- Restart to pick up changes ---"
+          kubectl rollout restart deployment/devops-app
+
           echo "--- Rollout ---"
           kubectl rollout status deployment/devops-app --timeout=600s || (
             echo "---- ROLLOUT FAILED: DEBUG INFO ----" &&
