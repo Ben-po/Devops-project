@@ -3,6 +3,7 @@ pipeline {
 
   environment {
     IMAGE_NAME = "devops-app"
+    IMAGE_TAG  = "${env.BUILD_NUMBER}"
     KUBECONFIG = "/tmp/kubeconfig-linux"
   }
 
@@ -75,6 +76,17 @@ EOF
       }
     }
 
+    stage("Build Image into Minikube") {
+      steps {
+        sh '''
+          set -eux
+          minikube image build -t devops-app:${BUILD_NUMBER} .
+          echo "--- Confirm image exists ---"
+          minikube image list | grep -F "devops-app:${BUILD_NUMBER}"
+        '''
+      }
+    }
+
     stage("Deploy to Minikube") {
       steps {
         sh '''
@@ -85,11 +97,8 @@ EOF
           kubectl get nodes
 
           echo "--- Apply manifests ---"
-          kubectl apply --validate=false -f k8s/deployment.yaml
+          sed "s|image: devops-app:1|image: devops-app:${BUILD_NUMBER}|g" k8s/deployment.yaml | kubectl apply --validate=false -f -
           kubectl apply --validate=false -f k8s/service.yaml
-
-          echo "--- Restart to pick up changes ---"
-          kubectl rollout restart deployment/devops-app
 
           echo "--- Rollout ---"
           kubectl rollout status deployment/devops-app --timeout=600s || (
