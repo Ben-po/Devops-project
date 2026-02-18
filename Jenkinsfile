@@ -81,9 +81,7 @@ EOF
         sh '''
           set -eux
           echo "--- Minikube status ---"
-          minikube status
-          echo "--- Docker env ---"
-          minikube docker-env
+          minikube status || true
           echo "--- Build ---"
           minikube image build -t devops-app:${BUILD_NUMBER} .
           echo "--- All images ---"
