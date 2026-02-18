@@ -81,8 +81,8 @@ EOF
         sh '''
           set -eux
           docker build --no-cache -t ${IMAGE_NAME}:${IMAGE_TAG} .
-          minikube image load ${IMAGE_NAME}:${IMAGE_TAG}
-          minikube image list | grep -F "${IMAGE_NAME}:${IMAGE_TAG}"
+          minikube -p minikube image load ${IMAGE_NAME}:${IMAGE_TAG}
+          minikube -p minikube image list | grep -E "(^|/)${IMAGE_NAME}:${IMAGE_TAG}" || true
         '''
       }
     }
