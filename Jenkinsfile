@@ -93,7 +93,8 @@ EOF
 
           echo "--- Update image + rollout ---"
           kubectl set image deployment/devops-app devops-app=${IMAGE_NAME}:${IMAGE_TAG}
-          kubectl rollout status deployment/devops-app --timeout=180s
+          kubectl rollout status deployment/devops-app --timeout=600s
+          kubectl get rs -l app=devops-app
 
           echo "--- Verify ---"
           kubectl get pods -l app=devops-app -o wide
