@@ -132,8 +132,9 @@ EOF
 
           echo "Chosen pod: $POD"
           echo "--- Pod image ---"
-          kubectl get pod "$POD" -o jsonpath="{.spec.containers[0].image}{\"\n\"}"
+          kubectl get pod "$POD" -o jsonpath='{.spec.containers[0].image}{"\n"}'
 
+          echo "--- Pod index.html (sha + first lines) ---"
           kubectl exec "$POD" -- sh -lc 'sha256sum /app/public/index.html; sed -n "1,40p" /app/public/index.html'
         '''
       }
