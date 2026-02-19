@@ -5,6 +5,7 @@ pipeline {
     IMAGE_NAME = "devops-app"
     IMAGE_TAG  = "1"
     KUBECONFIG = "/tmp/kubeconfig-linux"
+    MINIKUBE_HOME = "/var/jenkins_home/.minikube"
   }
 
   tools {
