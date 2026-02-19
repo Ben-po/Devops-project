@@ -2,9 +2,9 @@ pipeline {
   agent any
 
   environment {
-    IMAGE_NAME = "devops-app"
-    IMAGE_TAG  = "1"
-    KUBECONFIG = "/tmp/kubeconfig-linux"
+    IMAGE_NAME    = "devops-app"
+    IMAGE_TAG     = "1"
+    KUBECONFIG    = "/tmp/kubeconfig-linux"
     MINIKUBE_HOME = "/var/jenkins_home/.minikube"
   }
 
@@ -80,23 +80,37 @@ EOF
     stage("Build Image into Minikube") {
       steps {
         sh '''
+          echo "=== GIT INFO ==="
+          git rev-parse HEAD
+          git log -1 --oneline
+
+          echo "=== WORKSPACE index.html (sha + first lines) ==="
+          ls -la public || true
+          sha256sum public/index.html || true
+          sed -n '1,40p' public/index.html || true
+
+          echo "=== Find ALL index.html in workspace (maxdepth 4) ==="
+          find . -maxdepth 4 -name index.html -print -exec sha256sum {} \\; || true
+
           set -eux
 
-          # Build fresh locally (Jenkins docker daemon)
+          # Build fresh image in Jenkins docker daemon
           docker build --no-cache -t ${IMAGE_NAME}:${IMAGE_TAG} .
 
-          # IMPORTANT: remove old tag from minikube so load cannot "skip/keep old"
+          echo "=== IMAGE index.html (sha + first lines) ==="
+          docker run --rm ${IMAGE_NAME}:${IMAGE_TAG} sh -lc 'sha256sum /app/public/index.html; sed -n "1,40p" /app/public/index.html'
+
+          # Try removing old tag in minikube (ignore failures)
           minikube -p minikube image rm ${IMAGE_NAME}:${IMAGE_TAG} || true
 
           # Load freshly built image into minikube node
           minikube -p minikube image load ${IMAGE_NAME}:${IMAGE_TAG}
 
-          # Show that minikube now has the tag
+          # Confirm tag exists in minikube
           minikube -p minikube image list | grep -E "(^|/)${IMAGE_NAME}:${IMAGE_TAG}" || true
         '''
       }
     }
-
 
     stage("Deploy to Minikube") {
       steps {
@@ -107,25 +121,29 @@ EOF
           kubectl apply -f k8s/deployment.yaml
           kubectl apply -f k8s/service.yaml
 
-          kubectl delete pod -l app=devops-app --force --grace-period=0 || true
           kubectl rollout restart deployment/devops-app
           kubectl rollout status deployment/devops-app --timeout=320s
 
           kubectl get pods -l app=devops-app -o wide
-          echo "--- Dumping FULL index.html from NEWEST RUNNING pod ---"
-          POD=$(kubectl get pods -l app=devops-app --no-headers \
-            | awk '$3=="Running"{print $1}' \
-            | head -n 1)
+
+          echo "--- Dumping index.html from NEWEST RUNNING pod (sha + first lines) ---"
+
+          # Pick newest Running pod by creation timestamp (most reliable)
+          POD=$(kubectl get pods -l app=devops-app \
+            --field-selector=status.phase=Running \
+            --sort-by=.metadata.creationTimestamp \
+            -o jsonpath='{.items[-1:].metadata.name}')
 
           echo "Chosen pod: $POD"
-          kubectl exec $POD -- sh -lc "echo '====== FULL index.html ======'"
-          kubectl exec $POD -- sh -lc "cat /app/public/index.html"
-          kubectl exec $POD -- sh -lc "echo '====== END index.html ======'"
 
+          echo "--- Pod image ---"
+          kubectl get pod "$POD" -o jsonpath="{.spec.containers[0].image}{\"\\n\"}"
+
+          echo "--- Pod index.html (sha + first lines) ---"
+          kubectl exec "$POD" -- sh -lc 'sha256sum /app/public/index.html; sed -n "1,40p" /app/public/index.html'
         '''
       }
     }
-
   }
 
   post {
