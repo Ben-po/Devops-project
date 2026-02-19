@@ -128,18 +128,24 @@ EOF
 
           kubectl get pods -l app=devops-app -o wide
           echo "--- Dumping index.html from NEWEST RUNNING pod (sha + first lines) ---"
-          POD=$(kubectl get pods -l app=devops-app --no-headers | awk '$3=="Running"{print $1}' | head -n 1)
+
+          POD=$(kubectl get pods -l app=devops-app \
+            --field-selector=status.phase=Running \
+            --sort-by=.metadata.creationTimestamp \
+            -o jsonpath='{.items[-1].metadata.name}')
 
           echo "Chosen pod: $POD"
+
+          kubectl wait --for=condition=Ready pod/"$POD" --timeout=120s
+
           echo "--- Pod image ---"
-          kubectl get pod "$POD" -o jsonpath='{.spec.containers[0].image}{"\n"}'
+          kubectl get pod "$POD" -o jsonpath='{.spec.containers[0].image}{"\\n"}'
 
           echo "--- Pod index.html (sha + first lines) ---"
           kubectl exec "$POD" -- sh -lc 'sha256sum /app/public/index.html; sed -n "1,40p" /app/public/index.html'
         '''
       }
     }
-
   }
 
   post {
