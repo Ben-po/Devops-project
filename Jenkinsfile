@@ -80,12 +80,22 @@ EOF
       steps {
         sh '''
           set -eux
+
+          # Build fresh locally (Jenkins docker daemon)
           docker build --no-cache -t ${IMAGE_NAME}:${IMAGE_TAG} .
+
+          # IMPORTANT: remove old tag from minikube so load cannot "skip/keep old"
+          minikube -p minikube image rm ${IMAGE_NAME}:${IMAGE_TAG} || true
+
+          # Load freshly built image into minikube node
           minikube -p minikube image load ${IMAGE_NAME}:${IMAGE_TAG}
+
+          # Show that minikube now has the tag
           minikube -p minikube image list | grep -E "(^|/)${IMAGE_NAME}:${IMAGE_TAG}" || true
         '''
       }
     }
+
 
     stage("Deploy to Minikube") {
       steps {
