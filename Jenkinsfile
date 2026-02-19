@@ -113,17 +113,17 @@ EOF
 
           kubectl get pods -l app=devops-app -o wide
 
-          echo "--- Dumping FULL index.html from running pod ---"
-          POD=$(kubectl get pod -l app=devops-app -o jsonpath="{.items[0].metadata.name}")
+          echo "--- Dumping FULL index.html from RUNNING pod ---"
+          POD=$(kubectl get pod -l app=devops-app --field-selector=status.phase=Running -o jsonpath="{.items[0].metadata.name}")
           echo "Running pod: $POD"
 
           kubectl exec $POD -- sh -lc "echo '====== FULL index.html ======'"
           kubectl exec $POD -- sh -lc "cat public/index.html"
           kubectl exec $POD -- sh -lc "echo '====== END index.html ======'"
-
         '''
       }
     }
+
   }
 
   post {
