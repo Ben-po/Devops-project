@@ -112,6 +112,11 @@ EOF
           kubectl rollout status deployment/devops-app --timeout=320s
 
           kubectl get pods -l app=devops-app -o wide
+
+          POD=$(kubectl get pod -l app=devops-app -o jsonpath="{.items[0].metadata.name}")
+          echo "--- Running pod: $POD ---"
+          kubectl exec $POD -- sh -lc "echo '--- index.html (first 20 lines) ---'; head -n 20 public/index.html"
+
         '''
       }
     }
