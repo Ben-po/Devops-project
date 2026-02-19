@@ -90,7 +90,7 @@ EOF
           sed -n '1,40p' public/index.html || true
 
           echo "=== Find ALL index.html in workspace ==="
-          find . -name index.html -maxdepth 4 -print -exec sha256sum {} \; || true
+          find . -name index.html -maxdepth 4 -print -exec sha256sum {} ; || true
 
           set -eux
 
