@@ -112,14 +112,16 @@ EOF
           kubectl rollout status deployment/devops-app --timeout=320s
 
           kubectl get pods -l app=devops-app -o wide
+          echo "--- Dumping FULL index.html from NEWEST RUNNING pod ---"
+          POD=$(kubectl get pods -l app=devops-app --no-headers \
+            | awk '$3=="Running"{print $1}' \
+            | head -n 1)
 
-          echo "--- Dumping FULL index.html from RUNNING pod ---"
-          POD=$(kubectl get pod -l app=devops-app --field-selector=status.phase=Running -o jsonpath="{.items[0].metadata.name}")
-          echo "Running pod: $POD"
-
+          echo "Chosen pod: $POD"
           kubectl exec $POD -- sh -lc "echo '====== FULL index.html ======'"
-          kubectl exec $POD -- sh -lc "cat public/index.html"
+          kubectl exec $POD -- sh -lc "cat /app/public/index.html"
           kubectl exec $POD -- sh -lc "echo '====== END index.html ======'"
+
         '''
       }
     }
